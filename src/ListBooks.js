@@ -19,7 +19,7 @@ class ListBooks extends Component {
   }
   }
 
-
+      //https://reactjs.org/docs/lifting-state-up.html
 
 
   componentDidMount() {
@@ -40,11 +40,7 @@ class ListBooks extends Component {
       console.log(items);
       let objIndex = items.findIndex((obj => obj.id == book.id));
 
-
-      console.log(items[objIndex].shelf);
-
       items[objIndex].shelf = savedTarget;
-      console.log(items);
 
       // update state
           this.setState({

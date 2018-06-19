@@ -1,8 +1,41 @@
 import React, {Component} from 'react'
 import { Link } from 'react-router-dom'
+import * as BooksAPI from './BooksAPI'
+import Book from './Book'
+
 
 
 class Search extends Component {
+
+	state = {
+    bookResults: []
+  }
+
+
+  searchBooks = (term) => {
+
+  	BooksAPI.search(term)
+      .then((bookResults) => {
+      	console.log(bookResults);
+  
+        this.setState(() => ({
+          bookResults
+        }))
+    })
+  }
+
+  updateShelf = (book, e) => {
+      let savedEvent = e;
+      let savedTarget = e.target.value; //https://stackoverflow.com/questions/42089795/reactjs-cant-set-state-from-an-event-with-event-persist
+      BooksAPI.update(book, savedTarget).then((resp) => {
+
+     alert(`${book.title} has been added to ${savedTarget} shelf`);
+    })
+
+   
+};
+
+
 
 	render() {
 
@@ -18,13 +51,30 @@ class Search extends Component {
                   However, remember that the BooksAPI.search method DOES search by title or author. So, don't worry if
                   you don't find a specific author or title. Every search is limited by search terms.
                 */}
-                <input type="text" placeholder="Search by title or author"/>
+                <input type="text" placeholder="Search by title or author" onChange={(e) => {this.searchBooks(e.target.value)}}/>
 
               </div>
-            </div>
+            </div> 
+
+
+
             <div className="search-books-results">
-              <ol className="books-grid"></ol>
+
+             {typeof this.state.bookResults !== 'undefined'  && this.state.bookResults.length > 0 &&
+            
+              <ol className="books-grid">
+
+              {this.state.bookResults.map((book) => (<li key={book.id}>
+                  <Book book={book} updateShelf={this.updateShelf} />
+
+                </li>))
+
+            }
+
+              </ol>
+          }
             </div>
+        
           </div>)
 	}
 
