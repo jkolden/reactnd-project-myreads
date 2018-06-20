@@ -21,5 +21,7 @@ Click the Search ```+``` button in the lower right corner to search for books an
 
 After adding a book to your library, simply click the return arrow ```<--```to view the book shelf with the book(s) that were added from the search.
 
+<img width="1220" alt="bookshelf" src="https://user-images.githubusercontent.com/21246211/41677289-baace00a-747c-11e8-9c8f-5a2545697742.png">
+
 
 
