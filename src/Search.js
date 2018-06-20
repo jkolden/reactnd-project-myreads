@@ -1,83 +1,82 @@
-import React, {Component} from 'react'
-import { Link } from 'react-router-dom'
-import * as BooksAPI from './BooksAPI'
-import Book from './Book'
-
-
+import React, { Component } from "react";
+import { Link } from "react-router-dom";
+import * as BooksAPI from "./BooksAPI";
+import Book from "./Book";
 
 class Search extends Component {
-
 	state = {
-    bookResults: []
-  }
+		searchResults: []
+	};
 
+	searchBooks = searchTerm => {
+		BooksAPI.search(searchTerm).then(searchResults => {
+			//if API returns empty query or if no quert string exists, then just create an empty array:
+			if (!searchTerm.length || searchResults.error === "empty query") {
+				searchResults = [];
+			}
 
-  searchBooks = (term) => {
+			//update the results to not have a shelf until the user assigns one:
+			let result = searchResults.map(o =>
+				Object.assign(o, { shelf: "none" })
+			);
+			searchResults = result;
 
-  	BooksAPI.search(term)
-      .then((bookResults) => {
-      	console.log(bookResults);
-  
-        this.setState(() => ({
-          bookResults
-        }))
-    })
-  }
+			//compare the user's existing books with the API search results and update the shelf(s) for any books already in the library:
+			//helpful post: https://codeburst.io/comparison-of-two-arrays-using-javascript-3251d03877fe
+			let booksArray = [];
+			booksArray = this.props.books;
 
-  updateShelf = (book, e) => {
-      let savedEvent = e;
-      let savedTarget = e.target.value; //https://stackoverflow.com/questions/42089795/reactjs-cant-set-state-from-an-event-with-event-persist
-      BooksAPI.update(book, savedTarget).then((resp) => {
+			searchResults.forEach(function(e1) {
+				booksArray.forEach(function(e2) {
+					if (e1.id === e2.id) {
+						e1.shelf = e2.shelf;
+					}
+				});
+			});
 
-     alert(`${book.title} has been added to ${savedTarget} shelf`);
-    })
-
-   
-};
-
-
+			//set state of the search results:
+			this.setState(() => ({
+				searchResults
+			}));
+		});
+	};
 
 	render() {
+		return (
+			<div className="search-books">
+				<div className="search-books-bar">
+					<Link className="close-search" to="/">
+						Close
+					</Link>
+					<div className="search-books-input-wrapper">
+						<input
+							type="text"
+							placeholder="Search by title or author"
+							onChange={e => {
+								this.searchBooks(e.target.value);
+							}}
+						/>
+					</div>
+				</div>
 
-		return( <div className="search-books">
-            <div className="search-books-bar">
-              <Link className="close-search" to='/'>Close</Link>
-              <div className="search-books-input-wrapper">
-                {/*
-                  NOTES: The search from BooksAPI is limited to a particular set of search terms.
-                  You can find these search terms here:
-                  https://github.com/udacity/reactnd-project-myreads-starter/blob/master/SEARCH_TERMS.md
-
-                  However, remember that the BooksAPI.search method DOES search by title or author. So, don't worry if
-                  you don't find a specific author or title. Every search is limited by search terms.
-                */}
-                <input type="text" placeholder="Search by title or author" onChange={(e) => {this.searchBooks(e.target.value)}}/>
-
-              </div>
-            </div> 
-
-
-
-            <div className="search-books-results">
-
-             {typeof this.state.bookResults !== 'undefined'  && this.state.bookResults.length > 0 &&
-            
-              <ol className="books-grid">
-
-              {this.state.bookResults.map((book) => (<li key={book.id}>
-                  <Book book={book} updateShelf={this.updateShelf} />
-
-                </li>))
-
-            }
-
-              </ol>
-          }
-            </div>
-        
-          </div>)
+				<div className="search-books-results">
+					{typeof this.state.searchResults !== "undefined" &&
+						this.state.searchResults.length > 0 && (
+							<ol className="books-grid">
+								{this.state.searchResults.map(book => (
+									<li key={book.id}>
+										<Book
+											book={book}
+											updateShelf={this.props.updateShelf}
+										/>
+									</li>
+								))}
+							</ol>
+						)}
+				</div>
+			</div>
+		);
 	}
-
 }
 
-export default Search
+export default Search;
